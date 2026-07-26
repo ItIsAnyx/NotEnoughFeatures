@@ -3,21 +3,28 @@ from pydantic import BaseModel
 
 class DataReader(BaseModel):
     source: str
-    data: str
+    filename: str
+    filetype: str
+    size: str
 
 router = APIRouter(prefix="/data_readers")
 
 async def read_pdf(file: UploadFile):
-    return await file.read()
+    try:
+        return await file.read()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/read_file", response_model=DataReader)
-async def read_file_endpoint(source: str, filetype: str, file: UploadFile = File(None)):
+async def read_file_endpoint(filetype: str, source: str = "/data_readers/read_file", file: UploadFile = File(...)):
     if filetype == "pdf":
-        data = await read_pdf(file)
+        await read_pdf(file)
     else:
         raise HTTPException(status_code=400, detail="File type not supported")
 
     return {
         "source": source,
-        "data": data
+        "filename": file.filename,
+        "filetype": filetype,
+        "size": f"{file.size} bytes"
     }
