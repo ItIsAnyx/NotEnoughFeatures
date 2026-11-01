@@ -1,0 +1,18 @@
+flowchart TD
+  P["Project"] --> W["Workflow"]
+  W --> WV["WorkflowVersion<br/>immutable graph snapshot"]
+  P --> E["Experiment<br/>one launch"]
+  WV --> E
+  E --> EP["ExecutionPlan<br/>immutable expanded plan"]
+  EP --> T["Trial<br/>fold + model + params + seed"]
+  T --> NR["NodeRun"]
+  NR --> AT["Attempt"]
+
+  EV["Event"] -.-> E
+  EV -.-> T
+  EV -.-> NR
+  EV -.-> AT
+  AR["Artifact"] -.-> NR
+  AR -.-> AT
+  M["Metric"] -.-> T
+  M -.-> NR
